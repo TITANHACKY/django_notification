@@ -18,9 +18,9 @@
 {% block script %}
 
 <script>
-    $(document).ready(function(){
+    $(document).ready(function () {
         const websocket = new WebSocket("ws://{{ request.get_host }}/ws/notifications");
-        websocket.onmessage = function(response){
+        websocket.onmessage = function (response) {
             $("#no-notifications").hide();
             let data = JSON.parse(response.data);
             let notification = `
@@ -53,15 +53,23 @@
             $("#notifications").prepend(notification);
             $("#toasts").append(toast);
             $(".toast").toast().show();
+
+            if(Notification.permission == 'default') {
+                Notification.requestPermission();
+            } else if(Notification.permission !== 'granted') {
+                alert("Pleas Enable Notification to receive Notification")
+            } else {
+                new Notification(title = data.title, {body: data.body})
+            }
         }
     });
-    $(document).on("click", ".x-button", function(){
+    $(document).on("click", ".x-button", function () {
         $(this).parentsUntil("#notifications").remove();
-        if($("#notifications").children().length == 0 ){
+        if ($("#notifications").children().length == 0) {
             $("#no-notifications").show();
         }
     });
-    $(document).on("click", ".btn-close", function(){
+    $(document).on("click", ".btn-close", function () {
         $(this).parentsUntil("#toasts").remove();
     });
 </script>
